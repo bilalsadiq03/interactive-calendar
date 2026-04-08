@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-
-export default function CalendarGrid() {
-  const [currentDate] = useState(new Date());
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-
+export default function CalendarGrid({
+  startDate,
+  endDate,
+  setStartDate,
+  setEndDate,
+  notes,
+}) {
+  const currentDate = new Date();
   const today = new Date();
 
   const year = currentDate.getFullYear();
@@ -14,7 +15,7 @@ export default function CalendarGrid() {
 
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // 🔹 Helpers
+  //  Helpers
   const getDaysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
 
   const getStartDay = (y, m) => {
@@ -28,7 +29,7 @@ export default function CalendarGrid() {
 
   const calendarDays = [];
 
-  // 🔹 Previous Month
+  //  Previous Month
   for (let i = startDay - 1; i >= 0; i--) {
     const day = daysInPrevMonth - i;
     calendarDays.push({
@@ -38,7 +39,7 @@ export default function CalendarGrid() {
     });
   }
 
-  // 🔹 Current Month
+  //  Current Month
   for (let i = 1; i <= daysInCurrentMonth; i++) {
     calendarDays.push({
       day: i,
@@ -47,7 +48,7 @@ export default function CalendarGrid() {
     });
   }
 
-  // 🔹 Next Month
+  //  Next Month
   const remaining = 42 - calendarDays.length;
 
   for (let i = 1; i <= remaining; i++) {
@@ -58,7 +59,7 @@ export default function CalendarGrid() {
     });
   }
 
-  // 🔥 Handle Click
+  // Date Click Handler
   const handleDateClick = (date) => {
     if (!startDate || (startDate && endDate)) {
       setStartDate(date);
@@ -73,10 +74,19 @@ export default function CalendarGrid() {
     }
   };
 
-  // 🔥 Range Check
+  //  Range Check
   const isInRange = (date) => {
     if (!startDate || !endDate) return false;
     return date > startDate && date < endDate;
+  };
+
+  //  Note Indicator Logic
+  const hasNote = (date) => {
+    return notes.some(
+      (note) =>
+        date >= new Date(note.startDate) &&
+        date <= new Date(note.endDate)
+    );
   };
 
   return (
@@ -109,7 +119,7 @@ export default function CalendarGrid() {
             <div
               key={index}
               onClick={() => handleDateClick(item.date)}
-              className={`aspect-square flex items-center justify-center rounded-lg cursor-pointer transition-all
+              className={`relative aspect-square flex items-center justify-center rounded-lg cursor-pointer transition-all
                 ${
                   item.currentMonth
                     ? "font-bold text-black hover:bg-blue-100"
@@ -123,6 +133,11 @@ export default function CalendarGrid() {
               `}
             >
               {item.day}
+
+              {/* Note Indicator */}
+              {hasNote(item.date) && (
+                <span className="absolute bottom-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+              )}
             </div>
           );
         })}
